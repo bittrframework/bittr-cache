@@ -1,1 +1,3 @@
-# bittr-cache
+```bash
+composer require bittrframework/bittr-cache
+```

@@ -1,0 +1,22 @@
+{
+  "name": "bittrframework/bittr-cache",
+  "description": "Caches the result of a resource.",
+  "type": "library",
+  "keywords" : ["cache", "php cache", "resource cache", "file cache", "php file cache", "php"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Bittr Framework",
+      "email": "info@bittrframework.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "bittrframework/bittr-option": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Bittr\\": "src/"
+    }
+  }
+}
