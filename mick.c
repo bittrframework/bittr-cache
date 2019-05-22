@@ -1,6 +1,6 @@
 <h1>{{ $name }}</h1>
-{% if ($email) %}
+{% if ($email): %}
 <span>{{ $email }}</span>
-{% else %}
+{% else: %}
 <span>{{ $phone }}</span>
-{% endif %}
+{% endif; %}
