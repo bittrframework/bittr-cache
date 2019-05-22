@@ -285,7 +285,8 @@ class Cache
                 }
             }
 
-            file_put_contents("{$path}{$ext}", $this->exec ? $this->resolve($data, false) : $data);
+            $path .= $ext;
+            file_put_contents($path, $this->exec ? $this->resolve($data, false) : $data);
             $this->dirty = $this->map;
 
             return $ext === null ? $data : $path;
