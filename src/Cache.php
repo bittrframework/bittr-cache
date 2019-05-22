@@ -53,7 +53,7 @@ class Cache
     /** @var array|mixed */
     private static $mapped = ['uid' => 0];
     /** @var string */
-    public $save_path = 'Cache/';
+    public $save_path = null;
     /** @var string n */
     private $map_path = 'map';
     /** @var bool */
@@ -78,9 +78,16 @@ class Cache
      * @param string|null $namespace
      * @param string|null $group
      */
-    public function __construct(string $name = null, string $namespace = null, string $group = null)
+    public function __construct(
+        string $name = null,
+        string $namespace = null,
+        string $group = null,
+        string $save_path = __DIR__ . '/Cache/'
+    )
     {
+        $this->save_path = rtrim($save_path, '/') . '/';
         $path = "{$this->save_path}{$this->map_path}";
+
         if (is_readable($path))
         {
             self::$mapped = json_decode(file_get_contents($path), true);
@@ -135,18 +142,25 @@ class Cache
     }
 
     /**
-     * Sets or get cache save path.
+     * Sets cache save path.
      *
      * @param string|null $path
      * @return string
      */
-    public function savePath(string $path = null): string
+    public function setSavePath(string $path): Cache
     {
-        if ($path)
-        {
-            $this->save_path = $path;
-        }
+        $this->save_path = rtrim($path, '/') . '/';
 
+        return $this;
+    }
+
+    /**
+     * Gets cache save path.
+     *
+     * @return string
+     */
+    public function getSavePath(): string
+    {
         return $this->save_path;
     }
 
@@ -181,25 +195,32 @@ class Cache
      *
      * @param \Closure|null $set
      * @param \Closure      $get
+     * @param string        $ext
      * @return mixed|null
      */
-    public function ask(?Closure $set = null, Closure $get = null)
+    public function ask(?Closure $set = null, Closure $get = null, string $ext = null)
     {
         $this->namespace ? $haystack =& $this->map[$this->namespace] : $haystack =& $this->map;
         $save       = $this->save_path;
         $name       = $this->name;
         $file_exist = isset($haystack[$name]);
-
         if (is_readable($name))
         {
             $file_time  = filemtime($name);
             if ($file_exist)
             {
-                $path = "{$save}{$haystack[$name][1]}";
+                $path = "{$save}{$haystack[$name][1]}{$ext}";
                 if (is_readable($path) && $haystack[$name][0] >= $file_time)
                 {
-                    $data =  $this->exec ? $this->resolve($path) : file_get_contents($path);
-                    return $get ? $get($data) : $data;
+                    if ($ext !== null)
+                    {
+                        return $path;
+                    }
+                    else
+                    {
+                        $data =  $this->exec ? $this->resolve($path) : file_get_contents($path);
+                        return $get ? $get($data) : $data;
+                    }
                 }
             }
         }
@@ -264,10 +285,10 @@ class Cache
                 }
             }
 
-            file_put_contents($path, $this->exec ? $this->resolve($data, false) : $data);
+            file_put_contents("{$path}{$ext}", $this->exec ? $this->resolve($data, false) : $data);
             $this->dirty = $this->map;
 
-            return $data;
+            return $ext === null ? $data : $path;
         }
 
         return null;
